@@ -198,12 +198,12 @@
 
                                     <!-- GAMBAR (DEFAULT PER KATEGORI) -->
                                     <img src="
-        @if ($layanan->kategori == 'barbershop') {{ asset('images/hasil2.jpeg') }}
-        @elseif($layanan->kategori == 'kursus')
-            {{ asset('images/kursus2.jpeg') }}
-        @else
-            {{ asset('images/suasana.jpeg') }} @endif
-        "
+                                    @if ($layanan->kategori == 'barbershop') {{ asset('images/hasil2.jpeg') }}
+                                    @elseif($layanan->kategori == 'kursus')
+                                        {{ asset('images/kursus2.jpeg') }}
+                                    @else
+                                        {{ asset('images/suasana.jpeg') }} @endif
+                                    "
                                         class="img-fluid">
 
                                     <div class="item-1-contents">

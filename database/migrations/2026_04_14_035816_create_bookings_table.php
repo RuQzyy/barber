@@ -9,26 +9,28 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up()
-    {
-        Schema::create('bookings', function (Blueprint $table) {
-            $table->id();
+  public function up()
+{
+    Schema::create('bookings', function (Blueprint $table) {
+        $table->id();
 
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('barber_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('layanan_item_id')->constrained()->cascadeOnDelete();
+        $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+        $table->foreignId('barber_id')->constrained()->cascadeOnDelete();
+        $table->foreignId('layanan_item_id')->constrained()->cascadeOnDelete();
 
-            $table->date('tanggal');
-            $table->time('jam');
+        $table->date('tanggal');
+        $table->time('jam');
 
-            $table->integer('nomor_antrian');
+        $table->integer('nomor_antrian');
 
-            $table->enum('status', ['menunggu', 'diproses', 'selesai'])
-                ->default('menunggu');
+        $table->string('qr_code')->unique()->nullable();
 
-            $table->timestamps();
-        });
-    }
+        $table->enum('status', ['menunggu', 'diproses', 'selesai'])
+            ->default('menunggu');
+
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

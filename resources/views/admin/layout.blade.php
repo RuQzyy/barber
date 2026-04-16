@@ -1,6 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<style>
+#reader {
+    position: relative;
+}
+
+/* kotak guide */
+#reader::after {
+    content: "";
+    position: absolute;
+    inset: 25%;
+    border: 3px solid white;
+    border-radius: 10px;
+    pointer-events: none;
+}
+</style>
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Panel</title>
@@ -35,28 +51,29 @@
                         Dashboard
                     </a>
 
-                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
-                        Booking
-                    </a>
+                    <a href="{{ route('admin.booking') }}"
+   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+    Booking
+</a>
 
                     <a href="{{ route('admin.layanan.index') }}"
-   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
-   Layanan
-</a>
+                        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+                        Layanan
+                    </a>
 
                     <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
                         Barber
                     </a>
 
                     <a href="{{ route('admin.kursus.index') }}"
-   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
-    Kursus
-</a>
+                        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+                        Kursus
+                    </a>
 
-<a href="{{ route('admin.galeri.index') }}"
-   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
-   Galeri
-</a>
+                    <a href="{{ route('admin.galeri.index') }}"
+                        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+                        Galeri
+                    </a>
 
                     <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
                         User
@@ -111,17 +128,17 @@
             <!-- CONTENT DINAMIS -->
             @yield('content')
 
-            @if(session('success'))
-<script>
-Swal.fire({
-    icon: 'success',
-    title: 'Berhasil',
-    text: '{{ session('success') }}',
-    timer: 2000,
-    showConfirmButton: false
-});
-</script>
-@endif
+            @if (session('success'))
+                <script>
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: '{{ session('success') }}',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                </script>
+            @endif
 
         </div>
 

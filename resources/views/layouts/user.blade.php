@@ -12,8 +12,40 @@
     <style>
         body { font-family: 'Poppins', sans-serif; }
     </style>
+
+    <style>
+/* SCROLL MODAL */
+#modalContent::-webkit-scrollbar {
+    width: 6px;
+}
+
+#modalContent::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#modalContent::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+}
+
+#modalContent::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.4);
+}
+
+/* Firefox */
+#modalContent {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+
+
+</style>
+
+
 </head>
-<body class="bg-gray-100">
+
+<!-- 🔥 FULL DARK DISINI -->
+<body class="bg-black text-white">
 
 <!-- ================= NAVBAR ================= -->
 <nav id="navbar"
@@ -29,35 +61,36 @@
         <!-- MENU -->
         <div class="hidden md:flex items-center gap-10 text-xs uppercase tracking-[2px]">
 
-            <a href="#" class="text-yellow-500">Home</a>
-            <a href="#" class="text-white hover:text-yellow-500">Booking</a>
-            <a href="#" class="text-white hover:text-yellow-500">Kursus</a>
+            <a href="{{ route('user.dashboard') }}" class="text-yellow-500">Home</a>
+            <a href="{{ route('booking.create') }}" class="text-gray-300 hover:text-yellow-500 transition">Booking</a>
+            <a href="#" class="text-gray-300 hover:text-yellow-500 transition">Kursus</a>
 
         </div>
 
-        <div class="hidden md:flex items-center gap-4 text-white">
+        <!-- USER -->
+        <div class="hidden md:flex items-center gap-4">
 
-    <span class="text-sm opacity-70">
-        {{ auth()->user()->name }}
-    </span>
+            <span class="text-sm text-gray-400">
+                {{ auth()->user()->name }}
+            </span>
 
-    <form method="POST" action="/logout">
-        @csrf
-        <button
-            class="border border-yellow-500 text-yellow-500 px-4 py-1 text-xs uppercase tracking-widest hover:bg-yellow-500 hover:text-white transition">
-            Logout
-        </button>
-    </form>
+            <form method="POST" action="/logout">
+                @csrf
+                <button
+                    class="border border-yellow-500 text-yellow-500 px-4 py-1 text-xs uppercase tracking-widest hover:bg-yellow-500 hover:text-black transition">
+                    Logout
+                </button>
+            </form>
 
-</div>
+        </div>
+
     </div>
 </nav>
 
 <!-- ================= CONTENT ================= -->
-<div class="pt-0">
+<div class="min-h-screen">
     @yield('content')
 </div>
-
 
 <!-- ================= SCRIPT ================= -->
 <script>

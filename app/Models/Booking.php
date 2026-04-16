@@ -7,14 +7,17 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $fillable = [
-        'user_id',
-        'barber_id',
-        'layanan_item_id',
-        'tanggal',
-        'jam',
-        'nomor_antrian',
-        'status'
-    ];
+    'user_id',
+    'barber_id',
+    'layanan_item_id',
+    'tanggal',
+    'jam',
+    'nomor_antrian',
+    'status',
+    'payment_status',        // 🔥 TAMBAH
+    'midtrans_order_id',     // 🔥 TAMBAH
+    'snap_token'             // 🔥 TAMBAH
+];
 
     public function user()
     {
@@ -30,4 +33,9 @@ class Booking extends Model
     {
         return $this->belongsTo(LayananItem::class, 'layanan_item_id');
     }
+
+    public function layananItem()
+{
+    return $this->belongsTo(\App\Models\LayananItem::class, 'layanan_item_id');
+}
 }

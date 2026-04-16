@@ -9,6 +9,10 @@ use App\Models\Galeri;
 use App\Http\Controllers\Admin\LayananController;
 use App\Models\Layanan;
 use App\Http\Controllers\User\UserDashboardController;
+use App\Http\Controllers\User\BookingController;
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+  use App\Http\Controllers\Admin\ScanController;
+
 
 // =================== PUBLIC ===================
 
@@ -23,9 +27,25 @@ Route::get('/', function () {
 // =================== USER (LOGIN) ===================
 Route::middleware(['auth'])->group(function () {
 
+    // ================= DASHBOARD =================
     Route::get('/home', [UserDashboardController::class, 'index'])
         ->name('user.dashboard');
 
+    // ================= BOOKING =================
+    Route::get('/booking', [BookingController::class, 'create'])
+        ->name('booking.create');
+
+    Route::post('/booking', [BookingController::class, 'store'])
+        ->name('booking.store');
+
+        Route::get('/download-qr/{id}', [BookingController::class, 'downloadQr']);
+
+        Route::get('/user/payment/{id}', [BookingController::class, 'payment']);
+        Route::get('/user/payment/{id}', [BookingController::class, 'payment']);
+
+
+
+    // ================= PROFILE =================
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -33,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // =================== ADMIN ===================
+
 Route::middleware(['auth', 'role:admin'])
     ->prefix('admin')
     ->name('admin.')
@@ -42,26 +63,26 @@ Route::middleware(['auth', 'role:admin'])
         return view('admin.dashboard');
     })->name('dashboard');
 
+    // 🔥 SCAN
+    Route::get('/scan/{token}', [ScanController::class, 'scan'])->name('scan');
+
+    // 🔥 BOOKING
+    Route::get('/booking', [AdminBookingController::class, 'index'])->name('booking');
+    Route::post('/booking/{id}/status', [AdminBookingController::class, 'updateStatus']);
+
+    // 🔥 KURSUS
     Route::get('/kursus', [KursusController::class, 'index'])->name('kursus.index');
     Route::post('/kursus', [KursusController::class, 'store'])->name('kursus.store');
     Route::put('/kursus/{id}', [KursusController::class, 'update'])->name('kursus.update');
     Route::delete('/kursus/{id}', [KursusController::class, 'destroy'])->name('kursus.destroy');
 
-});
-
-
-Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin'])->group(function () {
-
+    // 🔥 GALERI
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.index');
     Route::post('/galeri', [GaleriController::class, 'store'])->name('galeri.store');
     Route::put('/galeri/{id}', [GaleriController::class, 'update'])->name('galeri.update');
     Route::delete('/galeri/{id}', [GaleriController::class, 'destroy'])->name('galeri.destroy');
 
-});
-
-
-Route::prefix('admin')->name('admin.')->middleware(['auth','role:admin'])->group(function () {
-
+    // 🔥 LAYANAN
     Route::get('/layanan', [LayananController::class, 'index'])->name('layanan.index');
     Route::post('/layanan', [LayananController::class, 'store'])->name('layanan.store');
     Route::put('/layanan/{id}', [LayananController::class, 'update'])->name('layanan.update');
