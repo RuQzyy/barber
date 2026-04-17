@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
              KursusSeeder::class,
              GaleriSeeder::class,
              BarberSeeder::class,
+             JadwalBarberSeeder::class,
         ]);
     }
 }

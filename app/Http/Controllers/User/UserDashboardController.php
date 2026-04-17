@@ -26,7 +26,32 @@ class UserDashboardController extends Controller
             ->latest()
             ->first();
 
-        // ================= LAYANAN BARBERSHOP =================
+        // ================= 🔥 ANTRIAN HARI INI (LIVE) =================
+        $antrianHariIni = Booking::with(['barber','layananItem'])
+            ->whereDate('tanggal', today())
+            ->whereIn('status', ['menunggu','diproses'])
+            ->orderBy('nomor_antrian')
+            ->get();
+
+        // ================= 🔥 SEDANG DIPROSES =================
+        $antrianSekarang = $antrianHariIni
+            ->where('status', 'diproses')
+            ->first();
+
+        // ================= 🔥 POSISI USER =================
+        $posisiUser = null;
+
+        if ($antrian) {
+            $posisiUser = $antrianHariIni
+                ->pluck('id')
+                ->search($antrian->id);
+
+            if ($posisiUser !== false) {
+                $posisiUser += 1;
+            }
+        }
+
+        // ================= LAYANAN =================
         $layanans = LayananItem::whereHas('layanan', function ($q) {
                 $q->where('kategori', 'barbershop');
             })
@@ -36,10 +61,9 @@ class UserDashboardController extends Controller
         $kursus = Kursus::latest()->get();
 
         // ================= KURSUS AKTIF =================
-        // nanti kalau sudah ada tabel pendaftaran kursus
         $kursusAktif = '-';
 
-        // ================= FORMAT TAMBAHAN (OPTIONAL BIAR RAPI DI VIEW) =================
+        // ================= FORMAT TAMBAHAN =================
         if ($bookingTerbaru) {
             $bookingTerbaru->tanggal_format = \Carbon\Carbon::parse($bookingTerbaru->tanggal)
                 ->format('d M Y');
@@ -54,7 +78,12 @@ class UserDashboardController extends Controller
             'antrian',
             'layanans',
             'kursus',
-            'kursusAktif'
+            'kursusAktif',
+
+            // 🔥 TAMBAHAN BARU
+            'antrianHariIni',
+            'antrianSekarang',
+            'posisiUser'
         ));
     }
 }

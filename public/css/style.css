@@ -10,6 +10,107 @@ html {
   height: 100%;
 }
 
+/* ============================= */
+/* 🔥 PRICING FIX FINAL 🔥 */
+/* ============================= */
+
+
+
+.pricing-section {
+    position: relative;
+    padding: 80px 0;
+    color: #fff;
+    overflow: hidden; /* 🔥 penting supaya background tidak keluar */
+}
+
+/* Wrapper background */
+.pricing-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background-image: url('../images/hero_2.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    opacity: 0.35;
+    z-index: 1;
+}
+
+/* Overlay */
+.pricing-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background: rgba(0,0,0,0.65);
+    z-index: 2;
+}
+
+/* Content harus di atas */
+.pricing-section .container {
+    position: relative;
+    z-index: 3;
+}
+
+/* Title */
+.pricing-title {
+    color: #fff;
+    letter-spacing: 3px;
+    font-weight: 700;
+}
+
+/* Subtitle */
+.pricing-subtitle {
+    color: #ddd;
+    font-size: 14px;
+}
+
+/* Category */
+.pricing-category {
+    color: #ff3b3b;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Item */
+.pricing-item {
+    margin-bottom: 20px;
+}
+
+/* Nama */
+.pricing-name {
+    white-space: nowrap;
+}
+
+/* Garis */
+.pricing-line {
+    flex: 1;
+    border-bottom: 1px dashed rgba(255,255,255,0.4);
+    margin: 0 10px;
+}
+
+/* Harga */
+.pricing-price {
+    color: #ff3b3b;
+    font-weight: 600;
+}
+
+/* Deskripsi */
+.pricing-desc {
+    display: block;
+    color: #ccc;
+    margin-top: 3px;
+    font-size: 12px;
+}
+
 .map-container {
     border-radius: 12px;
     overflow: hidden;

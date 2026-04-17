@@ -35,7 +35,7 @@
 
         <!-- BUTTON -->
         <div class="mt-6 flex gap-4">
-            <a href="#"
+            <a href="{{ route('booking.create') }}"
                class="bg-yellow-500 hover:bg-yellow-600 px-6 py-2 text-sm uppercase tracking-widest text-black transition">
                 Booking
             </a>
@@ -62,7 +62,7 @@
                     @if($bookingTerbaru)
                     <button onclick="openDetailModal()"
                         class="mt-3 text-xs text-yellow-400 hover:underline">
-                        Lihat Detail →
+                        Lihat Detail dan lakukan pembayaran →
                     </button>
                     @endif
                 </div>
@@ -86,8 +86,20 @@
                     <p class="text-gray-400 text-sm">Nomor Antrian</p>
 
                     <h1 class="text-3xl font-bold text-yellow-400 mt-1">
-                        {{ $antrian->nomor_antrian ?? '-' }}
+                        {{ $bookingTerbaru->nomor_antrian ?? '-' }}
                     </h1>
+
+                    @if($antrianSekarang)
+                    <p class="text-xs text-gray-400 mt-1">
+                        Sedang diproses: #{{ $antrianSekarang->nomor_antrian }}
+                    </p>
+                    @endif
+
+                    @if($posisiUser)
+                    <p class="text-xs text-yellow-300 mt-1">
+                        Posisi Anda: {{ $posisiUser }}
+                    </p>
+                    @endif
 
                     <span class="inline-block mt-2 bg-yellow-500 text-black px-3 py-1 rounded-full text-xs">
                         {{ $antrian->status ?? 'Tidak Ada' }}
@@ -104,9 +116,12 @@
 </div>
 
 <!-- ================= MODAL DETAIL BOOKING ================= -->
-<div id="modalDetail" class="fixed inset-0 bg-black/70 hidden items-center justify-center z-50">
+<div id="modalDetail"
+     class="fixed inset-0 bg-black/70 hidden z-50 flex items-center justify-center px-4">
 
-    <div class="bg-gray-900 text-white w-full max-w-md rounded-2xl shadow-xl p-6 relative">
+    <div
+    class="bg-gray-900 text-white w-full max-w-md rounded-2xl shadow-xl relative
+    max-h-[90vh] overflow-y-auto no-scrollbar p-6">
 
         <!-- CLOSE -->
         <button onclick="closeDetailModal()"
@@ -123,35 +138,55 @@
             <!-- ================= PAYMENT / QR ================= -->
             <div class="text-center mb-6">
 
-                @if($bookingTerbaru->payment_status == 'pending')
+                <!-- 🔥 INI PENTING (WRAPPER UNTUK UPDATE JS) -->
+                <div id="paymentArea">
 
-                    <!-- BELUM BAYAR -->
-                    <p class="text-sm text-yellow-400 mb-3">
-                        Menunggu Pembayaran
-                    </p>
+                    @if($bookingTerbaru->payment_status == 'pending')
 
-                    <button onclick="bayar({{ $bookingTerbaru->id }})"
-                        class="bg-yellow-500 hover:bg-yellow-600 text-black px-5 py-2 rounded-lg text-sm transition w-full">
-                        Bayar Sekarang
-                    </button>
+                        <p class="text-sm text-yellow-400 mb-3">
+                            Menunggu Pembayaran
+                        </p>
 
-                @elseif($bookingTerbaru->payment_status == 'paid')
+                        <button onclick="bayar({{ $bookingTerbaru->id }})"
+                            class="bg-yellow-500 hover:bg-yellow-600 text-black px-5 py-2 rounded-lg text-sm transition w-full">
+                            Bayar Sekarang
+                        </button>
 
-                    <!-- SUDAH BAYAR -->
-                    <p class="text-xs text-gray-400 mb-2">
-                        QR Booking
-                    </p>
+                   @elseif($bookingTerbaru->payment_status == 'paid')
 
-                    <div class="flex justify-center bg-white p-3 rounded-xl inline-block">
-                        {!! QrCode::size(160)->generate(url('/admin/scan/'.$bookingTerbaru->qr_code)) !!}
-                    </div>
+    <div class="text-center">
 
-                    <a href="{{ url('/download-qr/'.$bookingTerbaru->id) }}"
-                       class="block mt-3 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 text-xs rounded-lg transition">
-                        Download QR Code
-                    </a>
+        <!-- TITLE -->
+        <p class="text-sm font-semibold text-yellow-500 mb-1">
+            QR Code Booking
+        </p>
 
-                @endif
+        <!-- DESKRIPSI -->
+        <p class="text-xs text-gray-400 mb-3 leading-relaxed">
+            Tunjukkan QR Code ini kepada kasir sebelum melakukan cukur.<br>
+            QR ini akan digunakan untuk verifikasi booking Anda.
+        </p>
+
+        <!-- QR -->
+        <div class="flex justify-center bg-white p-3 rounded-xl inline-block shadow-lg">
+            {!! QrCode::size(160)->generate(url('/admin/scan/'.$bookingTerbaru->qr_code)) !!}
+        </div>
+
+        <!-- INFO TAMBAHAN -->
+        <p class="text-[11px] text-gray-500 mt-3">
+            Pastikan QR Code dapat dipindai dengan jelas
+        </p>
+
+        <!-- DOWNLOAD -->
+        <a href="{{ url('/download-qr/'.$bookingTerbaru->id) }}"
+           class="inline-block mt-4 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 text-xs rounded-lg transition">
+            Download QR Code
+        </a>
+
+    </div>
+
+@endif
+                </div>
 
             </div>
 
@@ -207,7 +242,8 @@
                 <div class="flex justify-between">
                     <span class="text-gray-400">Pembayaran</span>
 
-                    <span class="px-3 py-1 rounded-full text-xs
+                    <span id="statusBayar"
+                        class="px-3 py-1 rounded-full text-xs
                         @if($bookingTerbaru->payment_status == 'paid') bg-green-500 text-white
                         @else bg-yellow-500 text-black
                         @endif">
@@ -229,8 +265,90 @@
 
 </div>
 
+<!-- ================= ANTRIAN LIVE ================= -->
+<div class="max-w-7xl mx-auto px-6 mt-24">
 
+    <h3 class="text-xl font-bold mb-4 text-center">
+        Antrian Hari Ini
+    </h3>
 
+    <div class="bg-gray-900 rounded-2xl p-6 shadow">
+
+        <div id="antrianList" class="space-y-3">
+
+           @foreach($antrianHariIni as $a)
+<div class="flex items-center justify-between p-4 rounded-xl border border-gray-800
+    @if($a->status == 'diproses')
+        bg-yellow-500 text-black
+    @elseif($a->status == 'menunggu')
+        bg-gray-900
+    @else
+        bg-green-500 text-white
+    @endif
+
+    @if($a->user_id == auth()->id())
+        ring-2 ring-yellow-400
+    @endif
+">
+
+    <!-- LEFT -->
+    <div class="flex items-center gap-4">
+
+        <!-- NOMOR -->
+        <div class="text-2xl font-bold w-14">
+            #{{ str_pad($a->nomor_antrian, 2, '0', STR_PAD_LEFT) }}
+        </div>
+
+        <!-- INFO -->
+        <div>
+            <p class="font-semibold text-sm">
+                {{ $a->layananItem->nama ?? '-' }}
+            </p>
+
+            <p class="text-xs text-gray-400">
+                {{ $a->barber->nama ?? '-' }}
+            </p>
+        </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="text-right">
+
+        <!-- JAM -->
+        <p class="text-sm font-semibold">
+            {{ substr($a->jam,0,5) }}
+        </p>
+
+        <!-- STATUS -->
+        <span class="text-xs px-2 py-1 rounded-full
+            @if($a->status == 'diproses')
+                bg-black text-yellow-400
+            @elseif($a->status == 'menunggu')
+                bg-gray-700 text-white
+            @else
+                bg-white text-green-600
+            @endif
+        ">
+            {{ strtoupper($a->status) }}
+        </span>
+
+    </div>
+
+</div>
+@endforeach
+
+@if($antrianHariIni->isEmpty())
+    <p class="text-center text-gray-400 text-sm">
+        Belum ada antrian hari ini
+    </p>
+@endif
+
+        </div>
+
+    </div>
+
+</div>
 
 <!-- SPACING -->
 <div class="mt-32"></div>
@@ -370,8 +488,6 @@ function bayar(bookingId) {
         .then(res => res.json())
         .then(data => {
 
-            console.log(data); // DEBUG
-
             if (!data.snap_token) {
                 alert("Snap token tidak ditemukan");
                 return;
@@ -380,7 +496,47 @@ function bayar(bookingId) {
             snap.pay(data.snap_token, {
 
                 onSuccess: function(result){
-                    location.reload();
+
+                    // 🔥 tampil loading dulu
+                    document.getElementById('paymentArea').innerHTML = `
+                        <p class="text-yellow-400">Memproses pembayaran...</p>
+                    `;
+
+                    // 🔥 update status ke server
+                    fetch('/user/payment/update/' + bookingId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(() => {
+
+                        // 🔥 update badge status
+                        const status = document.getElementById('statusBayar');
+                        if (status) {
+                            status.innerText = 'paid';
+                            status.className = 'px-3 py-1 rounded-full text-xs bg-green-500 text-white';
+                        }
+
+                        // 🔥 tampil QR langsung TANPA reload
+                        document.getElementById('paymentArea').innerHTML = `
+                            <p class="text-xs text-gray-400 mb-2">
+                                QR Booking
+                            </p>
+
+                            <div class="flex justify-center bg-white p-3 rounded-xl inline-block">
+                                <img src="/download-qr/${bookingId}" class="w-40">
+                            </div>
+
+                            <a href="/download-qr/${bookingId}"
+                               class="block mt-3 bg-yellow-500 hover:bg-yellow-600 text-black px-4 py-2 text-xs rounded-lg transition">
+                               Download QR Code
+                            </a>
+                        `;
+
+                    });
+
                 },
 
                 onPending: function(result){
@@ -405,11 +561,85 @@ function closeDetailModal() {
     document.getElementById('modalDetail').classList.add('hidden');
     document.getElementById('modalDetail').classList.remove('flex');
 }
+
+setInterval(() => {
+    fetch('/api/antrian')
+        .then(res => res.json())
+        .then(data => {
+
+            let html = '';
+
+            data.forEach(a => {
+
+                let bg = 'bg-gray-900';
+                let badge = 'bg-gray-700 text-white';
+
+                if (a.status === 'diproses') {
+                    bg = 'bg-yellow-500 text-black';
+                    badge = 'bg-black text-yellow-400';
+                }
+
+                let highlight = '';
+                if (a.user_id == {{ auth()->id() }}) {
+                    highlight = 'ring-2 ring-yellow-400';
+                }
+
+                html += `
+                <div class="flex items-center justify-between p-4 rounded-xl border border-gray-800 ${bg} ${highlight}">
+
+                    <div class="flex items-center gap-4">
+                        <div class="text-2xl font-bold w-14">
+                            #${String(a.nomor_antrian).padStart(2,'0')}
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-sm">
+                                ${a.layanan_item?.nama ?? '-'}
+                            </p>
+
+                            <p class="text-xs text-gray-400">
+                                ${a.barber?.nama ?? '-'}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <p class="text-sm font-semibold">
+                            ${a.jam ? a.jam.substring(0,5) : '-'}
+                        </p>
+
+                        <span class="text-xs px-2 py-1 rounded-full ${badge}">
+                            ${a.status.toUpperCase()}
+                        </span>
+                    </div>
+
+                </div>
+                `;
+            });
+
+            document.getElementById('antrianList').innerHTML = html;
+
+        });
+
+}, 5000);
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const openModal = urlParams.get('openModal');
+
+    if (openModal) {
+        openDetailModal();
+    }
+
+});
 </script>
 
 <script src="https://app.sandbox.midtrans.com/snap/snap.js"
     data-client-key="{{ config('midtrans.clientKey') }}">
 </script>
+
+
 
 
 

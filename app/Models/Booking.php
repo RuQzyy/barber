@@ -14,9 +14,10 @@ class Booking extends Model
     'jam',
     'nomor_antrian',
     'status',
-    'payment_status',        // 🔥 TAMBAH
-    'midtrans_order_id',     // 🔥 TAMBAH
-    'snap_token'             // 🔥 TAMBAH
+    'payment_status',
+    'midtrans_order_id',
+    'snap_token',
+     'qr_code'
 ];
 
     public function user()

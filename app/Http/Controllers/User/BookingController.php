@@ -14,11 +14,14 @@ use App\Models\Booking;
 use App\Models\Barber;
 use App\Models\LayananItem;
 
+use App\Models\JadwalBarber;
+use App\Models\LiburBarber;
+
 class BookingController extends Controller
 {
     public function create()
     {
-        $barbers = Barber::all();
+        $barbers = Barber::with(['jadwal','libur'])->get();
 
         $layanans = LayananItem::whereHas('layanan', function ($q) {
             $q->where('kategori', 'barbershop');
@@ -26,7 +29,19 @@ class BookingController extends Controller
 
         $bookings = Booking::whereIn('status', ['menunggu', 'diproses'])->get();
 
-        return view('user.booking', compact('barbers', 'layanans', 'bookings'));
+        // 🔥 TAMBAHAN: RIWAYAT USER
+        $riwayat = Booking::with(['barber','layananItem'])
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->take(5) // ambil 5 terakhir
+            ->get();
+
+        return view('user.booking', compact(
+            'barbers',
+            'layanans',
+            'bookings',
+            'riwayat' // 🔥 kirim ke blade
+        ));
     }
 
     public function store(Request $request)
@@ -38,6 +53,63 @@ class BookingController extends Controller
             'jam' => 'required'
         ]);
 
+                // 🔥 CEK USER MASIH PUNYA BOOKING AKTIF
+        $cekBooking = Booking::where('user_id', Auth::id())
+            ->whereIn('status', ['menunggu', 'diproses'])
+            ->exists();
+
+        if ($cekBooking) {
+            return back()->with('error', 'Anda masih memiliki booking aktif');
+        }
+
+        // 🔥 CEK HARI (INDONESIA)
+        $hari = strtolower(Carbon::parse($request->tanggal)->locale('id')->isoFormat('dddd'));
+
+        // 🔥 CONVERT HARI KE FORMAT DATABASE
+        $mapHari = [
+            'senin' => 'senin',
+            'selasa' => 'selasa',
+            'rabu' => 'rabu',
+            'kamis' => 'kamis',
+            'jumat' => 'jumat',
+            'sabtu' => 'sabtu',
+            'minggu' => 'minggu'
+        ];
+
+        $hari = $mapHari[$hari] ?? $hari;
+
+
+        // 🔥 CEK LIBUR KHUSUS (TANGGAL)
+        $libur = LiburBarber::where('barber_id', $request->barber_id)
+            ->whereDate('tanggal', $request->tanggal)
+            ->exists();
+
+        if ($libur) {
+            return back()->withInput()->with('error', 'Barber libur di tanggal ini');
+        }
+
+
+        // 🔥 CEK JADWAL HARIAN
+        $jadwal = JadwalBarber::where('barber_id', $request->barber_id)
+            ->where('hari', $hari)
+            ->first();
+
+        if (!$jadwal) {
+            return back()->withInput()->with('error', 'Jadwal barber belum diatur');
+        }
+
+        if ($jadwal->libur) {
+            return back()->withInput()->with('error', 'Barber libur di hari ini');
+        }
+
+
+        // 🔥 CEK JAM KERJA
+        if (
+            strtotime($request->jam) < strtotime($jadwal->jam_mulai) ||
+            strtotime($request->jam) > strtotime($jadwal->jam_selesai)
+        ) {
+            return back()->withInput()->with('error', 'Jam di luar jadwal kerja barber');
+        }
         $jamRequest = Carbon::parse($request->jam);
 
         // 🔥 VALIDASI JEDA 30 MENIT
@@ -69,7 +141,8 @@ class BookingController extends Controller
             'jam' => $request->jam,
             'nomor_antrian' => $antrian,
             'status' => 'menunggu',
-            'payment_status' => 'pending'
+            'payment_status' => 'pending',
+            'qr_code' => uniqid('QR-')
         ]);
 
         // 🔥 MIDTRANS
@@ -157,4 +230,19 @@ class BookingController extends Controller
             ->header('Content-Type', 'image/svg+xml')
             ->header('Content-Disposition', 'attachment; filename="qr-booking.svg"');
     }
+
+    public function updatePaymentStatus(Request $request, $id)
+{
+    $booking = Booking::find($id);
+
+    if (!$booking) {
+        return response()->json(['error' => 'Booking tidak ditemukan'], 404);
+    }
+
+    $booking->update([
+        'payment_status' => 'paid',
+    ]);
+
+    return response()->json(['success' => true]);
+}
 }

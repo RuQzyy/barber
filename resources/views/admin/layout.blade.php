@@ -52,17 +52,20 @@
                     </a>
 
                     <a href="{{ route('admin.booking') }}"
-   class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
-    Booking
-</a>
+                        class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+                        Booking
+                    </a>
 
                     <a href="{{ route('admin.layanan.index') }}"
                         class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
                         Layanan
                     </a>
 
-                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+                      <a href="{{ route('admin.barbers.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
                         Barber
+                    </a>
+                    <a href="{{ route('admin.jadwal.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-[#1c5c45]">
+                        Jadwal
                     </a>
 
                     <a href="{{ route('admin.kursus.index') }}"
