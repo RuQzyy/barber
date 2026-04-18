@@ -64,6 +64,88 @@
         (Pagination nanti bisa pakai Laravel paginate)
     </div>
 
+    <div class="mt-10 bg-white rounded-2xl shadow overflow-hidden">
+
+    <div class="px-6 py-4 border-b">
+        <h2 class="text-lg font-semibold">Peserta Kursus</h2>
+        <p class="text-sm text-gray-500">Data semua pendaftar kursus</p>
+    </div>
+
+    <table class="w-full text-sm">
+        <thead class="bg-gray-100 text-xs uppercase text-gray-600">
+            <tr>
+                <th class="px-4 py-3 text-left">Nama</th>
+                <th class="px-4 py-3 text-left">No HP</th>
+                <th class="px-4 py-3 text-left">Kursus</th>
+                <th class="px-4 py-3 text-center">Kelas</th>
+                <th class="px-4 py-3 text-center">Mentor</th>
+                <th class="px-4 py-3 text-center">Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @forelse ($peserta as $p)
+                <tr class="border-b hover:bg-gray-50">
+
+                    <!-- NAMA -->
+                    <td class="px-4 py-3 font-medium">
+                        {{ $p->nama_peserta }}
+                    </td>
+
+                    <!-- NO HP -->
+                    <td class="px-4 py-3 text-gray-600">
+                        {{ $p->no_hp }}
+                    </td>
+
+                    <!-- KURSUS -->
+                    <td class="px-4 py-3">
+                        {{ $p->kursus->nama_kursus ?? '-' }}
+                    </td>
+
+                    <!-- TIPE -->
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-2 py-1 text-xs rounded
+                            {{ $p->tipe_kelas == 'private' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                            {{ ucfirst($p->tipe_kelas) }}
+                        </span>
+                    </td>
+
+                    <!-- MENTOR -->
+                    <td class="px-4 py-3 text-center">
+                        {{ $p->mentor->nama ?? '-' }}
+                    </td>
+
+                    <!-- STATUS -->
+                    <td class="px-4 py-3 text-center">
+                        @if ($p->payment_status == 'pending')
+                            <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs">
+                                Pending
+                            </span>
+                        @elseif($p->payment_status == 'paid')
+                            <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">
+                                Paid
+                            </span>
+                        @else
+                            <span class="bg-gray-100 text-gray-500 px-2 py-1 rounded text-xs">
+                                Unknown
+                            </span>
+                        @endif
+                    </td>
+
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center py-6 text-gray-400">
+                        Belum ada peserta
+                    </td>
+                </tr>
+            @endforelse
+        </tbody>
+
+    </table>
+
+</div>
+
     <!-- MODAL -->
     <div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50 transition">
 
@@ -92,6 +174,18 @@
                 <!-- DESKRIPSI -->
                 <textarea name="deskripsi" id="deskripsi" class="w-full border rounded-lg px-3 py-2 mb-3 text-sm"
                     placeholder="Deskripsi"></textarea>
+
+                <textarea name="materi" id="materi"
+                class="w-full border rounded-lg px-3 py-2 mb-3 text-sm"
+                placeholder="Materi (pisahkan dengan enter)
+                Contoh:
+                - Pengenalan alat
+                - Teknik dasar
+                - Praktek langsung"></textarea>
+
+                <input type="text" name="wa_group" id="wa_group"
+                class="w-full border rounded-lg px-3 py-2 mb-3 text-sm"
+                placeholder="Link WhatsApp Group (https://chat.whatsapp.com/...)">
 
                 <!-- DRAG DROP -->
                 <div id="dropArea"
@@ -171,6 +265,8 @@
             document.getElementById('jumlah_pertemuan').value = data.jumlah_pertemuan;
             document.getElementById('deskripsi').value = data.deskripsi ?? '';
             document.getElementById('is_rekomendasi').checked = data.is_rekomendasi;
+            document.getElementById('materi').value = data.materi ?? '';
+            document.getElementById('wa_group').value = data.wa_group ?? '';
         }
 
         // FORMAT RUPIAH

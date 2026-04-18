@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\KursusController;
+use App\Http\Controllers\User\KursusController as UserKursusController;
+use App\Http\Controllers\Admin\KursusController as AdminKursusController;
 use App\Models\Kursus;
 use App\Http\Controllers\Admin\GaleriController;
 use App\Models\Galeri;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\BookingController as AdminBookingController;
   use App\Http\Controllers\Admin\ScanController;
   use App\Http\Controllers\Admin\BarberController;
 use App\Http\Controllers\Admin\JadwalBarberController;
+use App\Http\Controllers\Admin\LaporanController;
 
 
 // =================== PUBLIC ===================
@@ -54,6 +56,11 @@ Route::middleware(['auth'])->group(function () {
         ->get();
 });
 
+      Route::get('/kursus', [UserKursusController::class,'index'])->name('user.kursus.index');
+Route::post('/kursus/daftar/{id}', [UserKursusController::class,'daftar']);
+Route::get('/kursus/payment/{id}', [UserKursusController::class,'payment']);
+Route::post('/kursus/success/{id}', [UserKursusController::class,'success']);
+
 
 
     // ================= PROFILE =================
@@ -82,10 +89,10 @@ Route::middleware(['auth', 'role:admin'])
     Route::post('/booking/{id}/status', [AdminBookingController::class, 'updateStatus']);
 
     // 🔥 KURSUS
-    Route::get('/kursus', [KursusController::class, 'index'])->name('kursus.index');
-    Route::post('/kursus', [KursusController::class, 'store'])->name('kursus.store');
-    Route::put('/kursus/{id}', [KursusController::class, 'update'])->name('kursus.update');
-    Route::delete('/kursus/{id}', [KursusController::class, 'destroy'])->name('kursus.destroy');
+  Route::get('/kursus', [AdminKursusController::class, 'index'])->name('kursus.index');
+Route::post('/kursus', [AdminKursusController::class, 'store'])->name('kursus.store');
+Route::put('/kursus/{id}', [AdminKursusController::class, 'update'])->name('kursus.update');
+Route::delete('/kursus/{id}', [AdminKursusController::class, 'destroy'])->name('kursus.destroy');
 
     // 🔥 GALERI
     Route::get('/galeri', [GaleriController::class, 'index'])->name('galeri.index');
@@ -115,5 +122,8 @@ Route::middleware(['auth', 'role:admin'])
     ->name('jadwal.libur.delete');
 
 });
+
+Route::get('/admin/laporan', [LaporanController::class, 'index'])->name('admin.laporan');
+Route::get('/admin/laporan/export', [LaporanController::class, 'export'])->name('admin.laporan.export');
 
 require __DIR__.'/auth.php';

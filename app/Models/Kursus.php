@@ -12,8 +12,15 @@ class Kursus extends Model
         'nama_kursus',
         'harga',
         'jumlah_pertemuan',
+        'materi',
+        'wa_instruktur',
+        'wa_group',
         'deskripsi',
-        'gambar',
-        'is_rekomendasi'
+        'gambar'
     ];
+
+    public function kursusUsers()
+    {
+        return $this->hasMany(KursusUser::class);
+    }
 }

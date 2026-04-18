@@ -84,7 +84,7 @@
                     Booking
                 </a>
 
-                <a href="#"
+                 <a href="{{ route('user.kursus.index') }}"
                     class="{{ request()->routeIs('kursus.*') ? 'text-yellow-500' : 'text-gray-300 hover:text-yellow-500' }}">
                     Kursus
                 </a>
